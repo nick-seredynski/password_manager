@@ -1,6 +1,8 @@
 # password_manager
-Password manager application with UI that saves passwords to JSON
----
+
+Password manager application with UI that saves passwords to JSON, passwords can be easily updated from within UI or a duplicate entry can be created.
+
+
 <img width="506" height="428" alt="image" src="https://github.com/user-attachments/assets/058f7250-ea78-4627-bc32-b15180144a73" />
 
 
