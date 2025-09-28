@@ -9,16 +9,25 @@ Password manager application with UI that saves passwords to JSON, passwords can
 ## Planned additions:
 
 
-1. Generate random strong password
+1. Generate random strong password (COMPLETE)
 
 
-2. Master password for accessing applications
+3. Master password for accessing application (COMPLETE)
 
 
-3. Easy method to retrieve passwords from within UI
+4. Easy method to retrieve passwords from within UI (IN PROGRESS)
 
 
-4. Encryption for passwords saved in JSON file
+5. Encryption for passwords saved in JSON file
 
 
-5. MFA for resetting master password
+6. MFA for resetting master password
+
+
+7. Customise random password with parameters such as length.
+
+
+8. User recieves feedback based on password strength
+
+
+9. Password manager automatically notifies user of vulnerable passwords
