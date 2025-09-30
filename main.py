@@ -5,14 +5,13 @@ from random import randint, choice, shuffle
 from tkinter import *
 from tkinter import messagebox
 
-# main UI
-window = Tk()
-window.title("Password Manager")
-window.config(padx=50, pady=50)
 
-
+# --- Master Login UI ---
 # Login screen ui and login
 def prompt_master_password():
+    login_window = Tk()
+    login_window.title("Master Login")
+    login_window.config(padx=50, pady=50)
 
 
     # check if master password created and meets requirements
@@ -39,26 +38,33 @@ def prompt_master_password():
         else:
             data = {}
 
-        # check if master password entry already exists
+        # First time login create new master password
         if "MASTER_PASSWORD" not in data:
             data.update(new_entry)
             messagebox.showinfo(title="First Login", message="Master password and email set successfully.")
+            login_window.destroy()
             show_password_manager_ui()
+            return
 
-        elif new_entry != data:
-            messagebox.showinfo(title="Error", message="Wrong email or password")
+        # If master password exists authenticate correct credentials
         else:
-            messagebox.showinfo(title="Login Successful", message="Welcome to Password Manager.")
-            show_password_manager_ui()
-        # Save data back to file
-        with open(filename, "w") as f:
-            json.dump(data, f, indent=4)
+            stored_master = data.get("MASTER_PASSWORD", {})
+            if master_email == stored_master.get("email") and master_password == stored_master.get("password"):
+                messagebox.showinfo(title="Login Successful", message="Welcome to Password Manager.")
+                login_window.destroy()
+                show_password_manager_ui()
+
+            # incorrect password
+            else:
+                messagebox.showinfo(title="Error", message="Wrong email or password")
+                return
+
 
     # Master Password UI
 
-    window.grid_columnconfigure(0, weight=1)
-    window.grid_columnconfigure(1, weight=3)
-    window.grid_columnconfigure(2, weight=1)
+    login_window.grid_columnconfigure(0, weight=1)
+    login_window.grid_columnconfigure(1, weight=3)
+    login_window.grid_columnconfigure(2, weight=1)
 
     # Logo
     canvas = Canvas(height=200, width=200)
@@ -80,7 +86,7 @@ def prompt_master_password():
     email_entry.grid(row=2, column=1, columnspan=2, sticky="w")
 
     # Frame for password + generate button
-    password_frame = Frame(window)
+    password_frame = Frame(login_window)
     password_frame.grid(row=3, column=1, columnspan=2, sticky="w")
 
     password_entry = Entry(password_frame, width=30)
@@ -89,11 +95,14 @@ def prompt_master_password():
     login_button = Button(password_frame, text="Login", command=master_password_login)
     login_button.pack(side="left", padx=5)
 
-    window.mainloop()
+    login_window.mainloop()
 
 
-
+# --- Main UI ---
 def show_password_manager_ui():
+    main_window = Tk()
+    main_window.title("Password Manager")
+    main_window.config(padx=50, pady=50)
 
     # check if password meets requirements and create password
     def submit_password():
@@ -176,11 +185,39 @@ def show_password_manager_ui():
         # insert password into password entry
         password_entry.insert(0, password)
 
+    # search for email and password based on user input in website field
+    def search():
+
+        website_query = website_entry.get().strip()
+        filename = "data.json"
+        # check if website field is empty
+        if not website_query:
+            messagebox.showerror("Error", "Please fill in website field.")
+            return
+        else:
+            if os.path.exists(filename):
+                try:
+                    with open(filename, "r") as f:
+                        data = json.load(f)
+                except json.JSONDecodeError:
+                    data = {}
+            else:
+                data = {}
+
+            # check if website entry already exists
+            if website_query in data:
+                stored_credentials = data.get(website_entry, {[0], [0]})
+                messagebox.showinfo("Success", f"Credentials exist.{stored_credentials}")
+
+            else:
+                messagebox.showinfo("Error", f"Credentials dont exist.")
+
+
 
     # Optional: Configure column weights
-    window.grid_columnconfigure(0, weight=1)
-    window.grid_columnconfigure(1, weight=3)
-    window.grid_columnconfigure(2, weight=1)
+    main_window.grid_columnconfigure(0, weight=1)
+    main_window.grid_columnconfigure(1, weight=3)
+    main_window.grid_columnconfigure(2, weight=1)
 
     # Logo
     canvas = Canvas(height=200, width=200)
@@ -190,35 +227,47 @@ def show_password_manager_ui():
 
     canvas.grid(row=0, column=1)
 
-    #labels
-    # website
+    # --- LABELS ---
+    # Website
     website_label = Label(text="Website:")
     website_label.grid(row=1, column=0, sticky="e")
 
-    # email
+    # Email
     email_label = Label(text="Email/Username:")
     email_label.grid(row=2, column=0, sticky="e")
 
-    # password
+    # Password
     password_label = Label(text="Password:")
     password_label.grid(row=3, column=0, sticky="e")
 
-    # Entries
-    website_entry = Entry(width=49)
-    website_entry.grid(row=1, column=1, columnspan=2, sticky="w")
+
+    # --- ENTRIES ---
+    # Website Entry
+    search_frame = Frame(main_window)
+    search_frame.grid(row=1, column=1, columnspan=2, sticky="w")
+
+    website_entry = Entry(search_frame, width=40)
+    website_entry.pack(side="left")
     website_entry.focus()
 
+    # Email Entry
     email_entry = Entry(width=49)
     email_entry.grid(row=2, column=1, columnspan=2, sticky="w")
 
-
-    # Frame for password + generate button
-    password_frame = Frame(window)
+    # Password Entry
+    password_frame = Frame(main_window)
     password_frame.grid(row=3, column=1, columnspan=2, sticky="w")
 
     password_entry = Entry(password_frame, width=30)
     password_entry.pack(side="left")
 
+
+    # --- BUTTONS ---
+    # Search Button
+    search_button = Button(search_frame, text=" Search ", command=search)
+    search_button.pack(side="left", padx=5)
+
+    # Generate Password Button
     generate_password_button = Button(password_frame, text="Generate Password", command=generate_random_password)
     generate_password_button.pack(side="left", padx=5)
 
@@ -226,6 +275,8 @@ def show_password_manager_ui():
     add_button = Button(text="Add", width=41, command=submit_password)
     add_button.grid(row=4, column=1, columnspan=2, sticky="w")
 
-    window.mainloop()
+    main_window.mainloop()
 
+
+# on start open login window
 prompt_master_password()
